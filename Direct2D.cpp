@@ -6,8 +6,70 @@
 #include "Direct2D.h"
 
 // Global variables
-ID2D1Factory *g_lpFactory = NULL;
-ID2D1HwndRenderTarget *g_lpRenderTarget = NULL;
+static ID2D1Factory *g_lpFactory = NULL;
+static ID2D1HwndRenderTarget *g_lpRenderTarget = NULL;
+
+BOOL UpdateDirect2D( LPARAM lParam )
+{
+	BOOL bResult = FALSE;
+
+	ID2D1SolidColorBrush *lpBrush;
+
+	// Create brush
+	if( g_lpRenderTarget->CreateSolidColorBrush( D2D1::ColorF( D2D1::ColorF::Red ), &lpBrush ) == S_OK )
+	{
+		// Successfully created brush
+		int nMouseX;
+		int nMouseY;
+		int nRight;
+		int nBottom;
+
+		// Store mouse position
+		nMouseX = LOWORD( lParam );
+		nMouseY = HIWORD( lParam );
+
+		// Calculate rectangle position
+		nRight	= ( nMouseX + 100 );
+		nBottom	= ( nMouseY + 100 );
+
+		// Begin drawing
+		g_lpRenderTarget->BeginDraw();
+
+		// Create rectangle
+		D2D1_RECT_F rect = D2D1::RectF( nMouseX, nMouseY, nRight, nBottom );
+
+		// Create rounder rectangle
+		D2D1_ROUNDED_RECT roundedRect = D2D1::RoundedRect( rect, 10.f, 10.f );
+
+		// Draw rounded rectangle
+		g_lpRenderTarget->DrawRoundedRectangle( roundedRect, lpBrush, 5.0f, NULL );
+
+		// End drawing
+		g_lpRenderTarget->EndDraw();
+
+		// Release brush
+		lpBrush->Release();
+
+		// Update return value
+		bResult = TRUE;
+
+	} // End of successfully created brush
+
+	return bResult;
+
+} // End of function UpdateDirect2D
+
+void PaintDirect2D()
+{
+	// Begin drawing
+	g_lpRenderTarget->BeginDraw();
+
+	// No actual drawing in here, just copy the render target to the window
+
+	// End drawing
+	g_lpRenderTarget->EndDraw();
+
+} // End of function PaintDirect2D
 
 BOOL InitDirect2D( HWND hWndMain )
 {
@@ -44,6 +106,9 @@ BOOL InitDirect2D( HWND hWndMain )
 
 			// End drawing
 			g_lpRenderTarget->EndDraw();
+
+			// Update return value
+			bResult = TRUE;
 
 		} // End of successfully created render target
 
@@ -115,13 +180,8 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 		{
 			// A paint message
 
-			// Begin drawing
-			g_lpRenderTarget->BeginDraw();
-
-			// No actual drawing in here, just copy the render target to the window
-
-			// End drawing
-			g_lpRenderTarget->EndDraw();
+			// Paint direct 2d
+			PaintDirect2D();
 
 			// Break out of switch
 			break;
@@ -130,44 +190,9 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 		case WM_LBUTTONDOWN:
 		{
 			// A left button down message
-			ID2D1SolidColorBrush *lpBrush;
 
-			// Create brush
-			if( g_lpRenderTarget->CreateSolidColorBrush( D2D1::ColorF( D2D1::ColorF::Red ), &lpBrush ) == S_OK )
-			{
-				// Successfully created brush
-				int nMouseX;
-				int nMouseY;
-				int nRight;
-				int nBottom;
-
-				// Store mouse position
-				nMouseX = LOWORD( lParam );
-				nMouseY = HIWORD( lParam );
-
-				// Calculate rectangle position
-				nRight	= ( nMouseX + 100 );
-				nBottom	= ( nMouseY + 100 );
-
-				// Begin drawing
-				g_lpRenderTarget->BeginDraw();
-
-				// Create rectangle
-				D2D1_RECT_F rect = D2D1::RectF( nMouseX, nMouseY, nRight, nBottom );
-
-				// Create rounder rectangle
-				D2D1_ROUNDED_RECT roundedRect = D2D1::RoundedRect( rect, 10.f, 10.f );
-
-				// Draw rounded rectangle
-				g_lpRenderTarget->DrawRoundedRectangle( roundedRect, lpBrush, 5.0f, NULL );
-
-				// End drawing
-				g_lpRenderTarget->EndDraw();
-
-				// Release brush
-				lpBrush->Release();
-
-			} // End of successfully created brush
+			// Update direct 2d
+			UpdateDirect2D( lParam );
 
 			// Break out of switch
 			break;
