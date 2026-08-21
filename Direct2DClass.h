@@ -14,7 +14,7 @@ public:
 	void Close();
 	BOOL Init( HWND hWndMain );
 	void Paint();
-	BOOL Update( LPARAM lParam );
+	BOOL Update( LPARAM lParam, BOOL( *lpUpdateFunction )( ID2D1HwndRenderTarget *lpRenderTarget, LPARAM lParam ) );
 
 protected:
 	ID2D1Factory *m_lpFactory;

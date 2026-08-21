@@ -8,6 +8,50 @@
 // Global variables
 Direct2D g_direct2D;
 
+BOOL Direct2DUpdateFunction( ID2D1HwndRenderTarget *lpRenderTarget, LPARAM lParam )
+{
+	BOOL bResult = FALSE;
+
+	ID2D1SolidColorBrush *lpBrush;
+
+	// Create brush
+	if( lpRenderTarget->CreateSolidColorBrush( D2D1::ColorF( D2D1::ColorF::Red ), &lpBrush ) == S_OK )
+	{
+		// Successfully created brush
+		int nMouseX;
+		int nMouseY;
+		int nRight;
+		int nBottom;
+
+		// Store mouse position
+		nMouseX = LOWORD( lParam );
+		nMouseY = HIWORD( lParam );
+
+		// Calculate rectangle position
+		nRight	= ( nMouseX + 100 );
+		nBottom	= ( nMouseY + 100 );
+
+		// Create rectangle
+		D2D1_RECT_F rect = D2D1::RectF( nMouseX, nMouseY, nRight, nBottom );
+
+		// Create rounder rectangle
+		D2D1_ROUNDED_RECT roundedRect = D2D1::RoundedRect( rect, 10.f, 10.f );
+
+		// Draw rounded rectangle
+		lpRenderTarget->DrawRoundedRectangle( roundedRect, lpBrush, 5.0f, NULL );
+
+		// Release brush
+		lpBrush->Release();
+
+		// Update return value
+		bResult = TRUE;
+
+	} // End of successfully created brush
+
+	return bResult;
+
+} // End of function Direct2DUpdateFunction
+
 LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARAM lParam )
 {
 	LRESULT lResult = 0;
@@ -42,7 +86,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 			// A left button down message
 
 			// Update direct 2d
-			g_direct2D.Update( lParam );
+			g_direct2D.Update( lParam, &Direct2DUpdateFunction );
 
 			// Break out of switch
 			break;;
