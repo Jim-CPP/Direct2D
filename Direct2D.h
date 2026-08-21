@@ -3,7 +3,8 @@
 #pragma once
 
 #include <windows.h>
-#include <d2d1.h>
+
+#include "Direct2DClass.h"
 
 #define MAIN_WINDOW_CLASS_NAME													"Main Direct2D Window Class"
 
